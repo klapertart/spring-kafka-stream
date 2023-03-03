@@ -18,13 +18,36 @@ public class WordCountProcessor {
     void buildPipeline(StreamsBuilder streamsBuilder){
         KStream<String, String> messageStream = streamsBuilder.stream("input-topic", Consumed.with(STRING_SERDE,STRING_SERDE));
 
+
+
+        KTable<String, Long> wordCounts = messageStream
+                .mapValues(text -> text.toLowerCase())
+                .flatMapValues(value -> Arrays.asList(value.split("\\w+")))
+                .groupBy((key, word) -> word)
+                .count();
+
+        /*
         KTable<String, Long> wordCounts = messageStream
                 .mapValues((ValueMapper<String,String>) String::toLowerCase )
                 .flatMapValues(value -> Arrays.asList(value.split("\\w+")))
                 .groupBy((key, word) -> word, Grouped.with(STRING_SERDE, STRING_SERDE))
                 .count();
+        */
 
-        wordCounts.toStream().to("output-topic");
+        /*
+        KTable<String, Long> wordCounts = messageStream
+                .mapValues(text -> text.toLowerCase())
+                .flatMapValues(textLower -> Arrays.asList(textLower.split("\\w+")))
+                .selectKey((key, word) -> word)
+                .groupByKey()
+                .count();
+         */
+
+        // print to console
+        wordCounts.toStream().foreach((word,count) -> System.out.println("WORD : " + word + ", COUNT: " + count));
+
+        // send to kafka
+        wordCounts.toStream().to("output-topic",Produced.with(Serdes.String(), Serdes.Long()));
 
     }
 }
