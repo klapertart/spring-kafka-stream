@@ -20,13 +20,14 @@ public class WordCountProcessor {
 
     @Autowired
     void buildPipeline(StreamsBuilder streamsBuilder){
+
         KStream<String, String> messageStream = streamsBuilder.stream(kafkaProperties.getTopicInput(), Consumed.with(STRING_SERDE,STRING_SERDE));
 
         KTable<String, Long> wordCounts = messageStream
                 .mapValues(text -> text.toLowerCase())
                 .flatMapValues(value -> Arrays.asList(value.split("\\W+")))
                 .groupBy((key, value) -> value)
-                .count();
+                .count(Materialized.as("counts"));
 
         // print to console
         wordCounts.toStream().foreach((key,count) -> System.out.println("WORD : " + key + ", COUNT: " + count));
