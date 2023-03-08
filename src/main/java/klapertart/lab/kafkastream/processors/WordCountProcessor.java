@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 @Component
 public class WordCountProcessor {
@@ -19,7 +20,7 @@ public class WordCountProcessor {
     private static final Serde<String> STRING_SERDE = Serdes.String();
 
     @Autowired
-    void buildPipeline(StreamsBuilder streamsBuilder){
+    public void buildPipeline(StreamsBuilder streamsBuilder){
 
         KStream<String, String> messageStream = streamsBuilder.stream(kafkaProperties.getTopicInput(), Consumed.with(STRING_SERDE,STRING_SERDE));
 
@@ -34,6 +35,5 @@ public class WordCountProcessor {
 
         // send to kafka
         wordCounts.toStream().to(kafkaProperties.getTopicOutput(),Produced.with(Serdes.String(), Serdes.Long()));
-
     }
 }
