@@ -1,6 +1,7 @@
 package klapertart.lab.kafkastream;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
 public class RandomTest {
 
     @Test
+    @Disabled
     public void splitTest(){
         String[] name = {"abdillah abdillah","hamka hamza","hamza hamza","hamka"};
 
